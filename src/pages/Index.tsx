@@ -101,10 +101,7 @@ const Index = () => {
 
   const heroVideoSources = [
     {
-      src: new URL(
-        "/20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
-        import.meta.env.BASE_URL
-      ).toString(),
+      src: `${import.meta.env.BASE_URL}20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4`,
       type: "video/mp4"
     }
   ];
