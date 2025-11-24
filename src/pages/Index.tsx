@@ -425,7 +425,7 @@ const Index = () => {
       <section id="accueil" className="relative min-h-screen w-full overflow-hidden bg-black text-white">
         <div className="relative w-full overflow-hidden">
           {/* Video background */}
-         <video
+          <video
             autoPlay
             loop
             muted
@@ -437,15 +437,13 @@ const Index = () => {
           >
             <source src={heroVideoSrc ?? undefined} type="video/mp4" />
           </video>
-          {/* Dark overlay */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/20 via-black/10 to-black/30"></div>
 
           {/* Hero content */}
           <div className="relative z-20">
             <div className="absolute inset-0">
               <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-black/50 via-neutral-950/35 to-black/55 opacity-60" />
-                <div className="absolute inset-0 mix-blend-overlay opacity-10 bg-[url('/grain.png')]" aria-hidden />
+                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-black/10 via-black/5 to-black/20 opacity-45" />
+                <div className="absolute inset-0 mix-blend-overlay opacity-5 bg-[url('/grain.png')]" aria-hidden />
                 <div className="absolute -top-20 left-1/2 w-[520px] h-[320px] -translate-x-1/2 rounded-full bg-red-600/20 blur-[140px]" aria-hidden />
               </div>
             </div>
