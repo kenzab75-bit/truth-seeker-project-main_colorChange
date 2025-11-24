@@ -99,14 +99,22 @@ const Index = () => {
     }
   ];
 
-  const heroVideoSources = [
-  {
-    src: "/20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
-    type: "video/mp4"
-  }
-];
-
   const heroVideoFallback = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+  const [heroVideoSrc, setHeroVideoSrc] = useState<string | null>(heroVideoFallback);
+
+  useEffect(() => {
+    const baseHref = typeof document !== "undefined" ? document.baseURI : import.meta.env.BASE_URL;
+    try {
+      const resolved = new URL(
+        "20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
+        baseHref
+      ).toString();
+      setHeroVideoSrc(resolved);
+    } catch (error) {
+      console.warn("Hero video path resolution failed, using fallback", error);
+      setHeroVideoSrc(heroVideoFallback);
+    }
+  }, [heroVideoFallback]);
 
   const testimonySegments = [
     {
@@ -209,6 +217,7 @@ const Index = () => {
     const handleError = () => {
       if (hasHeroVideoError) return;
       setHasHeroVideoError(true);
+      setHeroVideoSrc(heroVideoFallback);
       video.src = heroVideoFallback;
       video.load();
       video.play().catch(error => console.warn("Hero fallback video play prevented:", error));
@@ -417,22 +426,17 @@ const Index = () => {
         <div className="relative w-full overflow-hidden">
           {/* Video background */}
          <video
-  autoPlay
-  loop
-  muted
-  playsInline
-  preload="auto"
-  ref={heroVideoRef}
-  className="absolute inset-0 w-full h-full object-cover z-0"
->
-  {heroVideoSources.map((source, index) => (
-    <source
-      key={index}
-      src={source.src}
-      type={source.type}
-    />
-  ))}
-</video>
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            ref={heroVideoRef}
+            src={heroVideoSrc ?? undefined}
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          >
+            <source src={heroVideoSrc ?? undefined} type="video/mp4" />
+          </video>
           {/* Dark overlay */}
           <div className="absolute inset-0 bg-black/70 z-10"></div>
 
