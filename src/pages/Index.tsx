@@ -440,6 +440,18 @@ const Index = () => {
 
           {/* Hero content */}
           <div className="relative z-20">
+            <div className="absolute inset-0">
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-black/10 via-black/5 to-black/20 opacity-45" />
+                <div className="absolute inset-0 mix-blend-overlay opacity-5 bg-[url('/grain.png')]" aria-hidden />
+                <div className="absolute -top-20 left-1/2 w-[520px] h-[320px] -translate-x-1/2 rounded-full bg-red-600/20 blur-[140px]" aria-hidden />
+              </div>
+            </div>
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-0 h-64 w-64 rounded-full bg-primary-red/15 blur-[160px]" aria-hidden />
+              <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-primary-red/10 blur-[180px]" aria-hidden />
+            </div>
+
             <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 pt-32 md:pt-40 pb-24">
               <div className="relative">
                 <div className="absolute left-0 top-0 inline-flex items-center gap-3 text-xs uppercase tracking-[0.4em] text-white/70">
