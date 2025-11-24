@@ -100,11 +100,14 @@ const Index = () => {
   ];
 
   const heroVideoSources = [
-  {
-    src: "/20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
-    type: "video/mp4"
-  }
-];
+    {
+      src: new URL(
+        "/20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
+        import.meta.env.BASE_URL
+      ).toString(),
+      type: "video/mp4"
+    }
+  ];
 
   const heroVideoFallback = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
 
