@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Scale, Shield, FileText, AlertTriangle, X, ChevronRight, Quote, ArrowUp, Lock, ShieldCheck, ChevronDown, Menu, Mail, Loader2, Heart, FileCheck, Sparkles, Globe, Users, Megaphone, Fingerprint, KeyRound } from "lucide-react";
+import { Scale, Shield, FileText, AlertTriangle, X, ChevronRight, Quote, ArrowUp, Lock, ShieldCheck, ChevronDown, Menu, Mail, Loader2, Heart, FileCheck, Sparkles, Globe, Users, Megaphone, Fingerprint, KeyRound, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -29,6 +29,7 @@ const Index = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [hasHeroVideoError, setHasHeroVideoError] = useState(false);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
   const {
     toast
   } = useToast();
@@ -99,14 +100,22 @@ const Index = () => {
     }
   ];
 
-  const heroVideoSources = [
-  {
-    src: "/20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
-    type: "video/mp4"
-  }
-];
-
   const heroVideoFallback = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+  const [heroVideoSrc, setHeroVideoSrc] = useState<string | null>(heroVideoFallback);
+
+  useEffect(() => {
+    const baseHref = typeof document !== "undefined" ? document.baseURI : import.meta.env.BASE_URL;
+    try {
+      const resolved = new URL(
+        "20251122_2258_01kappzdjmeaha4rcxfqww814v.mp4",
+        baseHref
+      ).toString();
+      setHeroVideoSrc(resolved);
+    } catch (error) {
+      console.warn("Hero video path resolution failed, using fallback", error);
+      setHeroVideoSrc(heroVideoFallback);
+    }
+  }, [heroVideoFallback]);
 
   const testimonySegments = [
     {
@@ -203,12 +212,34 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const video = heroVideoRef.current;
+
+    if (!video) return;
+
+    const handleChange = () => {
+      if (mediaQuery.matches) {
+        video.pause();
+        setIsHeroPaused(true);
+      } else if (!isHeroPaused) {
+        video.play().catch(error => console.warn("Hero video autoplay prevented:", error));
+      }
+    };
+
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [isHeroPaused]);
+
+  useEffect(() => {
     const video = heroVideoRef.current;
     if (!video) return;
 
     const handleError = () => {
       if (hasHeroVideoError) return;
       setHasHeroVideoError(true);
+      setHeroVideoSrc(heroVideoFallback);
       video.src = heroVideoFallback;
       video.load();
       video.play().catch(error => console.warn("Hero fallback video play prevented:", error));
@@ -217,6 +248,19 @@ const Index = () => {
     video.addEventListener("error", handleError);
     return () => video.removeEventListener("error", handleError);
   }, [hasHeroVideoError, heroVideoFallback]);
+
+  const toggleHeroVideo = () => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play().catch(error => console.warn("Hero video play prevented:", error));
+      setIsHeroPaused(false);
+    } else {
+      video.pause();
+      setIsHeroPaused(true);
+    }
+  };
 
   const handleLoadMore = () => {
     setIsLoadingMore(true);
@@ -414,43 +458,46 @@ const Index = () => {
 
       {/* Hero Section – Cinematic video-ready canvas */}
       <section id="accueil" className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden min-h-screen">
           {/* Video background */}
-         <video
-  autoPlay
-  loop
-  muted
-  playsInline
-  preload="auto"
-  ref={heroVideoRef}
-  className="absolute inset-0 w-full h-full object-cover z-0"
->
-  {heroVideoSources.map((source, index) => (
-    <source
-      key={index}
-      src={source.src}
-      type={source.type}
-    />
-  ))}
-</video>
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-black/70 z-10"></div>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            ref={heroVideoRef}
+            src={heroVideoSrc ?? undefined}
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            aria-label="Vidéo de fond illustrant la page d'accueil"
+          >
+            <source src={heroVideoSrc ?? undefined} type="video/mp4" />
+          </video>
 
           {/* Hero content */}
           <div className="relative z-20">
-            <div className="absolute inset-0">
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-black via-neutral-950 to-black opacity-90" />
-                <div className="absolute inset-0 mix-blend-overlay opacity-20 bg-[url('/grain.png')]" aria-hidden />
-                <div className="absolute -top-20 left-1/2 w-[520px] h-[320px] -translate-x-1/2 rounded-full bg-red-600/20 blur-[140px]" aria-hidden />
-              </div>
-            </div>
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 left-0 h-64 w-64 rounded-full bg-primary-red/15 blur-[160px]" aria-hidden />
-              <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-primary-red/10 blur-[180px]" aria-hidden />
-            </div>
-
             <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 pt-32 md:pt-40 pb-24">
+              <div className="absolute right-6 top-6 flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 backdrop-blur-lg shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                <span className="text-xs uppercase tracking-[0.3em] text-white/70">Vidéo</span>
+                <button
+                  type="button"
+                  onClick={toggleHeroVideo}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-medium text-white hover:bg-white/20 transition"
+                >
+                  {isHeroPaused ? (
+                    <>
+                      <Play className="h-4 w-4" aria-hidden="true" />
+                      Relancer
+                    </>
+                  ) : (
+                    <>
+                      <Pause className="h-4 w-4" aria-hidden="true" />
+                      Pause
+                    </>
+                  )}
+                </button>
+              </div>
+
               <div className="relative">
                 <div className="absolute left-0 top-0 inline-flex items-center gap-3 text-xs uppercase tracking-[0.4em] text-white/70">
                   <span className="absolute -left-10 -top-6 w-24 h-24 rounded-full bg-red-500/20 blur-3xl" aria-hidden />
@@ -462,7 +509,7 @@ const Index = () => {
                 </div>
 
                 <div className="pt-16 md:pt-20">
-                  <div className="inline-flex items-center gap-3 rounded-full border border-red-500/20 bg-red-500/10 px-5 py-2 text-sm text-white/85">
+                  <div className="inline-flex items-center gap-3 rounded-full border border-red-500/30 bg-red-500/15 px-5 py-2 text-sm text-white/90 backdrop-blur">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500/20 text-red-400">
                       <AlertTriangle className="h-3.5 w-3.5 animate-pulse" aria-hidden="true" />
                     </div>
@@ -470,31 +517,36 @@ const Index = () => {
                     <span className="text-white/80">Révélations documentées sur les pratiques de la Lema Dental Clinic à Istanbul.</span>
                   </div>
 
-                  <div className="mt-8 space-y-6 text-left">
-                    <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight font-display text-white">LemaClinic Truth</h1>
-                    <p className="text-xl sm:text-2xl text-red-500/80">La vérité éclaire toujours.</p>
-                    <p className="text-lg text-white/80 max-w-2xl">
-                      Je suis une victime de la Lema Dental Clinic à Istanbul. Ce site rassemble des témoignages vérifiés et des éléments documentés pour protéger les patients, alerter les autorités et éviter que d’autres ne subissent les mêmes dérives.
-                    </p>
-                  </div>
-
-                  <div className="mt-10 flex flex-wrap items-center gap-4">
-                    <Button
-                      onClick={() => scrollToSection("histoire")}
-                      className="group rounded-full px-8 py-3 text-base font-medium bg-gradient-to-r from-red-500 via-red-500 to-red-600 text-white shadow-[0_0_25px_rgba(248,113,113,0.25)] hover:shadow-[0_0_35px_rgba(248,113,113,0.4)] hover:-translate-y-0.5 transition-all"
-                    >
-                      <span className="flex items-center gap-2">
-                        Découvrir la vérité
-                        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:rotate-6" />
-                      </span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => scrollToSection("contact")}
-                      className="rounded-full px-8 py-3 text-base font-medium border border-white/20 bg-transparent text-white/80 hover:text-white hover:bg-white/5 hover:border-white/40 backdrop-blur-sm transition-all"
-                    >
-                      Soutenir les victimes
-                    </Button>
+                  <div className="mt-8 text-left">
+                    <div className="max-w-3xl rounded-3xl border border-white/10 bg-black/35 p-8 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight font-display text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.4)]">LemaClinic Truth</h1>
+                          <p className="text-xl sm:text-2xl text-red-300/90">La vérité éclaire toujours.</p>
+                        </div>
+                        <p className="text-lg text-white/85 leading-relaxed">
+                          Je suis une victime de la Lema Dental Clinic à Istanbul. Ce site rassemble des témoignages vérifiés et des éléments documentés pour protéger les patients, alerter les autorités et éviter que d’autres ne subissent les mêmes dérives.
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4">
+                          <Button
+                            onClick={() => scrollToSection("histoire")}
+                            className="group rounded-full px-8 py-3 text-base font-medium bg-gradient-to-r from-red-500 via-red-500 to-red-600 text-white shadow-[0_0_25px_rgba(248,113,113,0.25)] hover:shadow-[0_0_35px_rgba(248,113,113,0.4)] hover:-translate-y-0.5 transition-all"
+                          >
+                            <span className="flex items-center gap-2">
+                              Découvrir la vérité
+                              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:rotate-6" />
+                            </span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={() => scrollToSection("contact")}
+                            className="rounded-full px-8 py-3 text-base font-medium border border-white/25 bg-white/5 text-white/90 hover:text-white hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all"
+                          >
+                            Soutenir les victimes
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
