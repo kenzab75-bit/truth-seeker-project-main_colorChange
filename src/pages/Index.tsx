@@ -458,7 +458,7 @@ const Index = () => {
 
       {/* Hero Section – Cinematic video-ready canvas */}
       <section id="accueil" className="relative min-h-screen w-full overflow-hidden bg-black text-white">
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden min-h-screen">
           {/* Video background */}
           <video
             autoPlay
